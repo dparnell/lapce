@@ -24,6 +24,7 @@ pub mod scroll;
 pub mod search;
 pub mod settings;
 pub mod signature;
+pub mod debug;
 pub mod source_control;
 pub mod split;
 pub mod status;
