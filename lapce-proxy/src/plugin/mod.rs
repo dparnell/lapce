@@ -22,7 +22,7 @@ use flate2::read::GzDecoder;
 use lapce_core::directory::Directory;
 use lapce_rpc::{
     core::CoreRpcHandler,
-    dap_types::{DapId, RunDebugConfig, ThreadId},
+    dap_types::{DapId, RunDebugConfig, SourceBreakpoint, ThreadId},
     plugin::{PluginId, VoltInfo, VoltMetadata},
     proxy::ProxyRpcHandler,
     style::LineStyle,
@@ -122,6 +122,7 @@ pub enum PluginCatalogNotification {
     DapDisconnected(DapId),
     DapStart {
         config: RunDebugConfig,
+        breakpoints: HashMap<PathBuf, Vec<SourceBreakpoint>>,
     },
     DapProcessId {
         dap_id: DapId,
@@ -144,6 +145,7 @@ pub enum PluginCatalogNotification {
     },
     DapRestart {
         dap_id: DapId,
+        breakpoints: HashMap<PathBuf, Vec<SourceBreakpoint>>,
     },
     Shutdown,
 }
@@ -991,8 +993,15 @@ impl PluginCatalogRpcHandler {
         self.catalog_notification(PluginCatalogNotification::DapLoaded(dap_rpc))
     }
 
-    pub fn dap_start(&self, config: RunDebugConfig) -> Result<()> {
-        self.catalog_notification(PluginCatalogNotification::DapStart { config })
+    pub fn dap_start(
+        &self,
+        config: RunDebugConfig,
+        breakpoints: HashMap<PathBuf, Vec<SourceBreakpoint>>,
+    ) -> Result<()> {
+        self.catalog_notification(PluginCatalogNotification::DapStart {
+            config,
+            breakpoints,
+        })
     }
 
     pub fn dap_process_id(
@@ -1032,8 +1041,15 @@ impl PluginCatalogRpcHandler {
         })
     }
 
-    pub fn dap_restart(&self, dap_id: DapId) -> Result<()> {
-        self.catalog_notification(PluginCatalogNotification::DapRestart { dap_id })
+    pub fn dap_restart(
+        &self,
+        dap_id: DapId,
+        breakpoints: HashMap<PathBuf, Vec<SourceBreakpoint>>,
+    ) -> Result<()> {
+        self.catalog_notification(PluginCatalogNotification::DapRestart {
+            dap_id,
+            breakpoints,
+        })
     }
 }
 
